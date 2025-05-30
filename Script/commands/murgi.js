@@ -1,11 +1,11 @@
 module.exports.config = {
-  name: "murgi",
-  version: "1.0.1",
+  name: "hi",
+  version: "1.0.3",
   hasPermssion: 0,
   credits: "Siam",
-  description: "Reply দিলে ইউজারকে Mention করে ১ সেকেন্ড ইন্টারভালে ৩০+ মেসেজ পাঠায়",
+  description: "Reply বা Mention দিলে ইউজারকে ট্যাগ করে ১ সেকেন্ড ইন্টারভালে ৩০+ মেসেজ দেয়",
   commandCategory: "utility",
-  usages: "/murgi",
+  usages: "/hi @user বা রিপ্লাই দিয়ে /hi",
   cooldowns: 5,
 };
 
@@ -17,7 +17,7 @@ module.exports.run = async function ({ api, event }) {
   let mentionID = null;
   let mentionName = null;
 
-  // যদি রিপ্লাই করা হয়
+  // ✅ যদি রিপ্লাই করা হয় কাউকে
   if (event.type === "message_reply") {
     mentionID = event.messageReply.senderID;
     try {
@@ -29,6 +29,13 @@ module.exports.run = async function ({ api, event }) {
     }
   }
 
+  // ✅ রিপ্লাই না থাকলে, দেখা হবে @mention আছে কিনা
+  else if (event.mentions && Object.keys(event.mentions).length > 0) {
+    mentionID = Object.keys(event.mentions)[0]; // প্রথম mention
+    mentionName = event.mentions[mentionID];
+  }
+
+  // ✅ এখানে সব মেসেজের লিস্ট
   const messages = [
     "👋 হ্যালো!",
     "আমি Tamrin Rinty বট 🤖",
@@ -60,10 +67,10 @@ module.exports.run = async function ({ api, event }) {
     "তার কারণেই আমি তৈরি 😍",
     "তোমার কথায় আমি আনন্দ পাই 💬",
     "তোমার বন্ধু Tamrin Rinty সবসময় পাশে আছে!",
-    "tor mayre chudi",
     "ধন্যবাদ আমাকে এক্টিভ করার জন্য ❤️"
   ];
 
+  // ✅ মেসেজ পাঠানো শুরু (১ সেকেন্ড পরপর)
   for (const msg of messages) {
     if (mentionID && mentionName) {
       api.sendMessage({
