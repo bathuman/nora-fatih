@@ -1,11 +1,11 @@
 module.exports.config = {
-  name: "hi",
+  name: "murgi",
   version: "1.0.3",
   hasPermssion: 0,
   credits: "Siam",
-  description: "Reply বা Mention দিলে ইউজারকে ট্যাগ করে ১ সেকেন্ড ইন্টারভালে ৩০+ মেসেজ দেয়",
+  description: "Mentions the replied or mentioned user in each message",
   commandCategory: "utility",
-  usages: "/murgi @user বা রিপ্লাই দিয়ে /murgi",
+  usages: "/murgi [@user] or reply to a user with /murgi",
   cooldowns: 5,
 };
 
@@ -17,25 +17,24 @@ module.exports.run = async function ({ api, event }) {
   let mentionID = null;
   let mentionName = null;
 
-  // ✅ যদি রিপ্লাই করা হয় কাউকে
+  // Check if the message is a reply
   if (event.type === "message_reply") {
     mentionID = event.messageReply.senderID;
     try {
       const userInfo = await api.getUserInfo(mentionID);
       mentionName = userInfo[mentionID].name;
     } catch (e) {
-      console.log("ইউজারের নাম আনতে সমস্যা হয়েছে:", e);
-      return api.sendMessage("ইউজারের নাম পাওয়া যায়নি।", event.threadID);
+      console.error("Error fetching user info:", e);
+      return api.sendMessage("Unable to retrieve user information.", event.threadID);
     }
   }
 
-  // ✅ রিপ্লাই না থাকলে, দেখা হবে @mention আছে কিনা
+  // If not a reply, check for mentions
   else if (event.mentions && Object.keys(event.mentions).length > 0) {
-    mentionID = Object.keys(event.mentions)[0]; // প্রথম mention
+    mentionID = Object.keys(event.mentions)[0]; // First mentioned user
     mentionName = event.mentions[mentionID];
   }
 
-  // ✅ এখানে সব মেসেজের লিস্ট
   const messages = [
     "👋 হ্যালো!",
     "আমি Tamrin Rinty বট 🤖",
@@ -70,7 +69,6 @@ module.exports.run = async function ({ api, event }) {
     "ধন্যবাদ আমাকে এক্টিভ করার জন্য ❤️"
   ];
 
-  // ✅ মেসেজ পাঠানো শুরু (১ সেকেন্ড পরপর)
   for (const msg of messages) {
     if (mentionID && mentionName) {
       api.sendMessage({
@@ -83,6 +81,6 @@ module.exports.run = async function ({ api, event }) {
     } else {
       api.sendMessage(msg, event.threadID);
     }
-    await wait(1000); // ১ সেকেন্ড বিরতি
+    await wait(1000); // 1-second interval between messages
   }
 };
