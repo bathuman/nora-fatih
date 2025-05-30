@@ -1,11 +1,11 @@
 module.exports.config = {
-  name: "murgi",
-  version: "1.0.0",
+  name: "hi",
+  version: "1.0.1",
   hasPermssion: 0,
   credits: "Siam",
-  description: "একাধিক মেসেজ ১ সেকেন্ড ইন্টারভালে পাঠায়",
+  description: "Reply দিলে ইউজারকে Mention করে ১ সেকেন্ড ইন্টারভালে ৩০+ মেসেজ পাঠায়",
   commandCategory: "utility",
-  usages: "/murgi",
+  usages: "/hi",
   cooldowns: 5,
 };
 
@@ -14,6 +14,21 @@ function wait(ms) {
 }
 
 module.exports.run = async function ({ api, event }) {
+  let mentionID = null;
+  let mentionName = null;
+
+  // যদি রিপ্লাই করা হয়
+  if (event.type === "message_reply") {
+    mentionID = event.messageReply.senderID;
+    try {
+      const userInfo = await api.getUserInfo(mentionID);
+      mentionName = userInfo[mentionID].name;
+    } catch (e) {
+      console.log("ইউজারের নাম আনতে সমস্যা হয়েছে:", e);
+      return api.sendMessage("ইউজারের নাম পাওয়া যায়নি।", event.threadID);
+    }
+  }
+
   const messages = [
     "👋 হ্যালো!",
     "আমি Tamrin Rinty বট 🤖",
@@ -45,11 +60,22 @@ module.exports.run = async function ({ api, event }) {
     "তার কারণেই আমি তৈরি 😍",
     "তোমার কথায় আমি আনন্দ পাই 💬",
     "তোমার বন্ধু Tamrin Rinty সবসময় পাশে আছে!",
+    "tor mayre chudi",
     "ধন্যবাদ আমাকে এক্টিভ করার জন্য ❤️"
   ];
 
   for (const msg of messages) {
-    api.sendMessage(msg, event.threadID);
-    await wait(1000); // ✅ ১ সেকেন্ড বিরতি
+    if (mentionID && mentionName) {
+      api.sendMessage({
+        body: `@${mentionName} ${msg}`,
+        mentions: [{
+          tag: `@${mentionName}`,
+          id: mentionID
+        }]
+      }, event.threadID);
+    } else {
+      api.sendMessage(msg, event.threadID);
+    }
+    await wait(1000); // ১ সেকেন্ড বিরতি
   }
 };
