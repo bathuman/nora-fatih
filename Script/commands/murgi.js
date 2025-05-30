@@ -5,7 +5,7 @@ module.exports.config = {
   credits: "Siam",
   description: "Reply বা Mention দিলে ইউজারকে ট্যাগ করে ১ সেকেন্ড ইন্টারভালে ৩০+ মেসেজ দেয়",
   commandCategory: "utility",
-  usages: "/hi @user বা রিপ্লাই দিয়ে /hi",
+  usages: "/murgi @user বা রিপ্লাই দিয়ে /murgi",
   cooldowns: 5,
 };
 
