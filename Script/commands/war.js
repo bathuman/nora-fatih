@@ -5,7 +5,7 @@ module.exports.config = {
     credits: "𝐂𝐘𝐁𝐄𝐑 ☢️_𖣘 -𝐁𝐎𝐓 ⚠️ 𝑻𝑬𝑨𝑴_ ☢️",
     description: "War in group boxchat",
     commandCategory: "group",
-    usages: "bold war",
+    usages: "abal",
     cooldowns: 10,
     dependencies: {
         "fs-extra": "",
