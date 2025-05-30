@@ -1,11 +1,11 @@
 module.exports.config = {
-  name: "hi",
+  name: "murgi",
   version: "1.0.1",
   hasPermssion: 0,
   credits: "Siam",
   description: "Reply দিলে ইউজারকে Mention করে ১ সেকেন্ড ইন্টারভালে ৩০+ মেসেজ পাঠায়",
   commandCategory: "utility",
-  usages: "/hi",
+  usages: "/murgi",
   cooldowns: 5,
 };
 
