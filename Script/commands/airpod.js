@@ -3,7 +3,7 @@ const fs = require("fs-extra");
 
 module.exports = {
   config: {
-    name: "airpod",
+    name: "afrin",
     aliases: [],
     version: "1.0",
     author: "Siam 💖",
