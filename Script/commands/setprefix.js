@@ -9,7 +9,7 @@ module.exports.config = {
 	cooldowns: 5
 };
 
-module.exports.languages ={
+module.exports.languages = {
 	"vi": {
 		"successChange": "Đã chuyển đổi prefix của nhóm thành: %1",
 		"missingInput": "Phần prefix cần đặt không được để trống",
@@ -22,7 +22,7 @@ module.exports.languages ={
 		"resetPrefix": "Reset prefix to: %1",
 		"confirmChange": "Are you sure that you want to change prefix into: %1"
 	}
-}
+};
 
 module.exports.handleReaction = async function({ api, event, Threads, handleReaction, getText }) {
 	try {
@@ -33,26 +33,45 @@ module.exports.handleReaction = async function({ api, event, Threads, handleReac
 		await Threads.setData(threadID, { data });
 		await global.data.threadData.set(String(threadID), data);
 		api.unsendMessage(handleReaction.messageID);
-		return api.sendMessage(getText("successChange", handleReaction.PREFIX), threadID, messageID);
-	} catch (e) { return console.log(e) }
-}
 
-module.exports.run = async ({ api, event, args, Threads , getText }) => {
+		// ✅ লিংক সহ success message
+		return api.sendMessage(
+			`${getText("successChange", handleReaction.PREFIX)}\n\n🎬 Watch this: https://www.youtube.com/shorts/YIaU3itYThY`,
+			threadID,
+			messageID
+		);
+	} catch (e) { return console.log(e); }
+};
+
+module.exports.run = async ({ api, event, args, Threads, getText }) => {
 	if (typeof args[0] == "undefined") return api.sendMessage(getText("missingInput"), event.threadID, event.messageID);
 	let prefix = args[0].trim();
 	if (!prefix) return api.sendMessage(getText("missingInput"), event.threadID, event.messageID);
-	if (prefix == "reset") {
+
+	// ✅ যদি reset হয়
+	if (prefix === "reset") {
 		var data = (await Threads.getData(event.threadID)).data || {};
 		data["PREFIX"] = global.config.PREFIX;
 		await Threads.setData(event.threadID, { data });
 		await global.data.threadData.set(String(event.threadID), data);
-		return api.sendMessage(getText("resetPrefix", global.config.PREFIX), event.threadID, event.messageID);
-	} else return api.sendMessage(getText("confirmChange", prefix), event.threadID, (error, info) => {
-		global.client.handleReaction.push({
-			name: "setprefix",
-			messageID: info.messageID,
-			author: event.senderID,
-			PREFIX: prefix
-		})
-	})
-}
+		return api.sendMessage(
+			`${getText("resetPrefix", global.config.PREFIX)}\n\n🎬 Watch this: https://www.youtube.com/shorts/YIaU3itYThY`,
+			event.threadID,
+			event.messageID
+		);
+	}
+
+	// ✅ Custom prefix সেট করার সময়
+	return api.sendMessage(
+		`${getText("confirmChange", prefix)}\n\n🎬 Watch this: https://www.youtube.com/shorts/YIaU3itYThY`,
+		event.threadID,
+		(error, info) => {
+			global.client.handleReaction.push({
+				name: "setprefix",
+				messageID: info.messageID,
+				author: event.senderID,
+				PREFIX: prefix
+			});
+		}
+	);
+};
