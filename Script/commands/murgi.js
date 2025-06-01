@@ -1,9 +1,9 @@
 module.exports.config = {
   name: "murgi",
-  version: "1.0.3",
+  version: "1.0.4",
   hasPermssion: 0,
-  credits: "Siam",
-  description: "Mentions the replied or mentioned user in each message",
+  credits: "Siam & ChatGPT",
+  description: "Mentions the replied or mentioned user in each message with delay",
   commandCategory: "utility",
   usages: "/murgi [@user] or reply to a user with /murgi",
   cooldowns: 5,
@@ -14,10 +14,15 @@ function wait(ms) {
 }
 
 module.exports.run = async function ({ api, event }) {
+  const allowedSenderID = "100022952830933";
+
+  if (event.senderID !== allowedSenderID) {
+    return api.sendMessage("❌ এই কমান্ডটি চালানোর অনুমতি তোমার নেই।", event.threadID, event.messageID);
+  }
+
   let mentionID = null;
   let mentionName = null;
 
-  // Check if the message is a reply
   if (event.type === "message_reply") {
     mentionID = event.messageReply.senderID;
     try {
@@ -25,18 +30,17 @@ module.exports.run = async function ({ api, event }) {
       mentionName = userInfo[mentionID].name;
     } catch (e) {
       console.error("Error fetching user info:", e);
-      return api.sendMessage("Unable to retrieve user information.", event.threadID);
+      return api.sendMessage("❌ ইউজার ইনফো আনা যায়নি।", event.threadID);
     }
-  }
-
-  // If not a reply, check for mentions
-  else if (event.mentions && Object.keys(event.mentions).length > 0) {
-    mentionID = Object.keys(event.mentions)[0]; // First mentioned user
+  } else if (event.mentions && Object.keys(event.mentions).length > 0) {
+    mentionID = Object.keys(event.mentions)[0];
     mentionName = event.mentions[mentionID];
+  } else {
+    return api.sendMessage("❌ দয়া করে কারো রিপ্লাই দাও বা @মেনশন করো।", event.threadID, event.messageID);
   }
 
   const messages = [
-    "👋 হ্যালো খাঙ্কিরপোলা তোমাকে এখন উরাধুরা চোদা হবে রেডি থাকো!",
+     "👋 হ্যালো খাঙ্কিরপোলা তোমাকে এখন উরাধুরা চোদা হবে রেডি থাকো!",
     "SIAM রে যে গালি দিবি তার আম্মু রে চুদি মাগির পোলা!",
     "এই মুরগি খাংকির পোলা SIAM তর আম্মুর ভাতার লাগে বাস্ট্রাডের বাচ্ছা গালি বাজ হয়ে গেসিস",
     "তর মত গালি বাজ আমি ৩৬৫ দিন চুদি মাগির পোলা",
@@ -69,18 +73,14 @@ module.exports.run = async function ({ api, event }) {
     "ধন্যবাদ  তোর এক্টিভ করার জন্য ❤️"
   ];
 
-  for (const msg of messages) {
-    if (mentionID && mentionName) {
-      api.sendMessage({
-        body: `@${mentionName} ${msg}`,
-        mentions: [{
-          tag: `@${mentionName}`,
-          id: mentionID
-        }]
-      }, event.threadID);
-    } else {
-      api.sendMessage(msg, event.threadID);
-    }
-    await wait(1000); // 1-second interval between messages
+  for (let i = 0; i < messages.length; i++) {
+    await wait(1000); // 1 second delay
+    api.sendMessage({
+      body: `${messages[i]} @${mentionName}`,
+      mentions: [{
+        tag: mentionName,
+        id: mentionID
+      }]
+    }, event.threadID);
   }
 };
