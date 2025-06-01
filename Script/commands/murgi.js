@@ -129,6 +129,6 @@ module.exports.run = async function ({ api, event }) {
     } else {
       api.sendMessage(msg, event.threadID);
     }
-    await wait(1.5000); // 1.5-second interval between messages
+    await wait(2000); // 1.5-second interval between messages
   }
 };
