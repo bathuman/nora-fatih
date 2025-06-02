@@ -12,20 +12,20 @@ module.exports.config = {
   name: "random",
   version: "1.0",
   author: "Siam + ChatGPT",
-  description: "র‍্যান্ডম ভিডিও পাঠায়",
+  description: "স্ল্যাশ ছাড়া শুধু 'random' লিখলে র‍্যান্ডম ভিডিও পাঠায়",
   commandCategory: "fun",
-  usages: "/random",
+  usages: "random",
   cooldowns: 3
 };
 
 module.exports.handleEvent = async function({ api, event }) {
   const { body, threadID } = event;
 
-  if (!body || body.toLowerCase() !== "/random") return;
+  if (!body || body.trim().toLowerCase() !== "random") return;
 
   const videoLinks = [
     "https://i.imgur.com/nUe6fif.mp4",
-    // অন্য ভিডিও লিংক চাইলে এখানে যোগ করো
+    // চাইলে আরও ভিডিও লিংক যোগ করো
   ];
 
   const randomLink = videoLinks[Math.floor(Math.random() * videoLinks.length)];
@@ -33,7 +33,7 @@ module.exports.handleEvent = async function({ api, event }) {
   try {
     const res = await streamFromURL(randomLink);
     api.sendMessage({
-      body: "🎬 নিচে তোমার র‍্যান্ডম ভিডিও!",
+      body: "🎬 তোমার র‍্যান্ডম ভিডিও!",
       attachment: res
     }, threadID);
   } catch (e) {
