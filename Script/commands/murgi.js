@@ -17,26 +17,31 @@ module.exports.run = async function ({ api, event }) {
   const allowedSenderID = "100022952830933";
 
   if (event.senderID !== allowedSenderID) {
-    return api.sendMessage("❌ Are you crazy? Only my boss Siam can use this code. You don't have permission, idiot.", event.threadID, event.messageID);
+    return api.sendMessage("❌ Are you crazy? Only my boss Siam can use this command. You don't have permission, idiot.", event.threadID, event.messageID);
   }
 
   let mentionID = null;
   let mentionName = null;
 
+  // If user replied to someone
   if (event.type === "message_reply") {
     mentionID = event.messageReply.senderID;
     try {
       const userInfo = await api.getUserInfo(mentionID);
-      mentionName = userInfo[mentionID].name;
+      mentionName = userInfo[mentionID].name || "User";
     } catch (e) {
       console.error("Error fetching user info:", e);
-      return api.sendMessage("❌ Could not fetch user info.", event.threadID);
+      return api.sendMessage("❌ Could not fetch user info.", event.threadID, event.messageID);
     }
-  } else if (event.mentions && Object.keys(event.mentions).length > 0) {
+  }
+  // If user mentioned someone
+  else if (event.mentions && Object.keys(event.mentions).length > 0) {
     mentionID = Object.keys(event.mentions)[0];
-    mentionName = event.mentions[mentionID];
-  } else {
-    return api.sendMessage("❌Boss, who do you want to wash? Please reply or @mention someone.", event.threadID, event.messageID);
+    mentionName = event.mentions[mentionID] || "User";
+  }
+  // No reply or mention
+  else {
+    return api.sendMessage("❌ Boss, who do you want to wash? Please reply or @mention someone.", event.threadID, event.messageID);
   }
 
   const messages = [
@@ -92,9 +97,9 @@ module.exports.run = async function ({ api, event }) {
     "I fuck from cunt hole to pussy cleavage",
     "Thank you for listening to me war",
     "Goodbye and see you in the next program",
-    "Good bye crazy asshole 🥺"
+    "Good bye crazy asshole 🥺",
     "ধন্যবাদ  তোর এক্টিভ করার জন্য ❤️"
-  ];
+   ];
 
   for (let i = 0; i < messages.length; i++) {
     await wait(1000); // 1 second delay
