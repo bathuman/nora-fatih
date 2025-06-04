@@ -102,12 +102,13 @@ module.exports.run = async function ({ api, event }) {
    ];
 
   for (let i = 0; i < messages.length; i++) {
-  await wait(2000); // 2 second delay
-  api.sendMessage({
-    body: `${messages[i]} @${mentionName}`,
-    mentions: [{
-      tag: mentionName,
-      id: mentionID
-    }]
-  }, event.threadID);
-}
+    await wait(2000); // 2 second delay
+    api.sendMessage({
+      body: `${messages[i]} @${mentionName}`,
+      mentions: [{
+        tag: mentionName,
+        id: mentionID
+      }]
+    }, event.threadID);
+  }
+};
