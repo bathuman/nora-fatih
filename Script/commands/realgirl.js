@@ -6,14 +6,14 @@ module.exports.config = {
   name: "realgirl",
   version: "1.0",
   author: "Siam x ChatGPT",
-  description: "Send a hot girl photo (boobs, hass, pgif)",
+  description: "Send a real hot girl photo (boobs, hass, pgif)",
   usage: "realgirl [boobs|hass|pgif]",
   cooldown: 5,
   permissions: 0,
   category: "18+"
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.run = async function({ api, event, args }) {
   const type = (args[0] || 'boobs').toLowerCase();
   const validTypes = ['boobs', 'hass', 'pgif'];
 
