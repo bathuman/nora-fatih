@@ -7,33 +7,41 @@ module.exports = {
     name: "realgirl",
     version: "1.0",
     author: "Siam",
-    countDown: 5,
+    cooldowns: 5,
     role: 0,
-    shortDescription: "Send real boobs image",
-    longDescription: "Send real girl boobs image",
-    category: "18+",
-    guide: "{pn}"
+    hasPermission: 0,
+    shortDescription: "Sends random real girl image",
+    longDescription: "Sends NSFW random image of real girls from nekobot API",
+    category: "nsfw",
+    guide: "{pn} boobs | hass | pgif"
   },
 
-  onStart: async function ({ api, event }) {
-    const imgURL = "https://nekobot.xyz/api/image?type=boobs";
+  onStart: async function ({ api, event, args }) {
+    const type = (args[0] || "boobs").toLowerCase();
+    const validTypes = ["boobs", "hass", "pgif"];
+
+    if (!validTypes.includes(type)) {
+      return api.sendMessage(`❌ Invalid type!\n✅ Try one of: ${validTypes.join(", ")}`, event.threadID, event.messageID);
+    }
+
+    const url = `https://nekobot.xyz/api/image?type=${type}`;
 
     try {
-      const res = await axios.get(imgURL);
-      const imageUrl = res.data.message;
+      const res = await axios.get(url);
+      const imgUrl = res.data.message;
 
       const imgPath = path.join(__dirname, "cache", `${Date.now()}.jpg`);
-      const imageData = (await axios.get(imageUrl, { responseType: "arraybuffer" })).data;
-      fs.outputFileSync(imgPath, imageData);
+      const imgData = (await axios.get(imgUrl, { responseType: "arraybuffer" })).data;
+      fs.outputFileSync(imgPath, imgData);
 
       await api.sendMessage({
-        body: "Here's a random real girl photo ❤️",
+        body: `Here's a realgirl (${type.toUpperCase()}) for you 😍`,
         attachment: fs.createReadStream(imgPath)
       }, event.threadID, () => fs.unlinkSync(imgPath), event.messageID);
 
     } catch (err) {
-      console.error("Realgirl Error:", err.message);
-      api.sendMessage("❌ Error fetching image.", event.threadID, event.messageID);
+      console.error("realgirl.js error:", err);
+      api.sendMessage("❌ Failed to get image. Try again later.", event.threadID, event.messageID);
     }
   }
 };
