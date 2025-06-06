@@ -4,52 +4,46 @@ const path = require('path');
 
 module.exports.config = {
   name: "realgirl",
-  version: "2.0",
+  version: "1.0",
   author: "Siam x ChatGPT",
-  description: "Send a real hot girl photo with options!",
-  usage: "realgirl [hass|boobs|pgif]",
+  description: "Send a hot girl photo (boobs, hass, pgif)",
+  usage: "realgirl [boobs|hass|pgif]",
   cooldown: 5,
   permissions: 0,
   category: "18+"
 };
 
 module.exports.run = async function ({ api, event, args }) {
-  const cachePath = path.join(__dirname, "cache");
-  if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath);
+  const type = (args[0] || 'boobs').toLowerCase();
+  const validTypes = ['boobs', 'hass', 'pgif'];
 
-  const type = (args[0] || 'hass').toLowerCase(); // Default is 'hass'
-
-  const supportedTypes = ['hass', 'boobs', 'pgif'];
-  if (!supportedTypes.includes(type)) {
+  if (!validTypes.includes(type)) {
     return api.sendMessage(
-      `❌ Invalid type!\nAvailable types: ${supportedTypes.join(', ')}`,
+      `❌ Invalid type!\nTry: ${validTypes.join(", ")}`,
       event.threadID,
       event.messageID
     );
   }
 
-  const imgPath = path.join(cachePath, `realgirl_${Date.now()}.jpg`);
-  const apiURL = `https://nekobot.xyz/api/image?type=${type}`;
+  const folderPath = __dirname + "/cache/";
+  const filePath = folderPath + `realgirl_${Date.now()}.jpg`;
 
   try {
-    const response = await axios.get(apiURL);
-    const imageUrl = response.data.message;
+    if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath);
 
-    const imgData = (await axios.get(imageUrl, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(imgPath, imgData);
+    const res = await axios.get(`https://nekobot.xyz/api/image?type=${type}`);
+    const imageUrl = res.data.message;
 
-    await api.sendMessage({
-      body: `🔥 Here's a ${type.toUpperCase()} for you!`,
-      attachment: fs.createReadStream(imgPath)
-    }, event.threadID, event.messageID);
+    const imgBuffer = (await axios.get(imageUrl, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(filePath, imgBuffer);
 
-    fs.unlinkSync(imgPath);
-  } catch (err) {
-    console.error(err);
-    api.sendMessage(
-      "❌ Couldn't fetch the image right now. Please try again later.",
-      event.threadID,
-      event.messageID
-    );
+    api.sendMessage({
+      body: `Here's a ${type.toUpperCase()} 🔥`,
+      attachment: fs.createReadStream(filePath)
+    }, event.threadID, () => fs.unlinkSync(filePath), event.messageID);
+
+  } catch (error) {
+    console.error("realgirl error:", error);
+    return api.sendMessage("❌ Couldn't fetch the image. Try again later.", event.threadID, event.messageID);
   }
 };
